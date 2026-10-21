@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anh Đào Express – Weight Calculator V4 (Thử nghiệm)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f5fa;color:#193047;line-height:1.5}.container{max-width:1150px;margin:28px auto;background:white;border-radius:14px;overflow:hidden;box-shadow:0 8px 28px rgba(15,45,85,.1)}header{background:#1455a3;color:white;padding:25px 28px}header h1{font-size:24px;margin:0 0 5px}header p{margin:0}main{padding:26px}h2{font-size:19px;margin:0 0 15px}.panel{margin-bottom:28px}.package{border:1px solid #dce5ef;border-radius:10px;padding:16px;margin:14px 0;background:#fff}.package-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.package-head h3{margin:0;font-size:16px}.fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}input{width:100%;min-width:0;padding:11px;border:1px solid #bdcadb;border-radius:7px;font-size:16px}input:focus{outline:2px solid #8bb9ed;outline-offset:1px}button{border:1px solid #1455a3;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer}button:focus-visible{outline:3px solid #85b7ee;outline-offset:2px}.primary{background:#1455a3;color:white}.outline{background:white;color:#1455a3}.remove{border-color:#b42318;color:#b42318;background:white}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:17px}.note{font-size:14px;color:#47617d}.guide{background:#f0f6ff;padding:18px;border-radius:10px}.guide p{margin:7px 0}.error{color:#b42318;background:#fff0ef;border:1px solid #f3c4c0;padding:11px;border-radius:8px;margin-top:14px}.table-wrap{overflow-x:auto;border:1px solid #dce5ef;border-radius:9px}table{border-collapse:collapse;width:100%;min-width:1020px;font-size:13px}th,td{padding:12px 9px;border-bottom:1px solid #e5ebf3;text-align:left;vertical-align:top}th{background:#edf4ff;color:#163d75}tbody tr:last-child td{border-bottom:0}.summary{margin-top:18px;display:grid;gap:10px}.summary-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.highlight{background:#e8f2ff;border-radius:10px;padding:17px}.highlight strong{display:block;color:#1455a3;font-size:30px;margin-top:4px}.copy-actions{margin-top:20px}.copy-status{font-size:14px;margin:10px 0;color:#1455a3}.manual-copy{margin-top:12px}.manual-copy textarea{display:block;width:100%;min-height:180px;padding:12px;border:1px solid #bdcadb;border-radius:8px;font:14px/1.5 Arial,sans-serif;resize:vertical}.explanation{padding-left:22px}.explanation li{margin:9px 0;overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:720px){.container{margin:0;border-radius:0;min-height:100vh}header,main{padding:18px}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.fields .quantity{grid-column:span 2}.actions button{flex:1 1 140px}.package{padding:12px}.table-wrap{margin:0 -3px}header h1{font-size:21px}}
+
+.history-list{display:grid;gap:12px}.history-card{border:1px solid #dce5ef;border-radius:10px;padding:15px;background:#fff}.history-card h3{font-size:15px;margin:0 0 5px}.history-card p{margin:5px 0}.history-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.history-detail{background:#f0f6ff;border-radius:8px;padding:12px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}.history-message{font-size:14px;color:#47617d;margin:10px 0}.history-warning{color:#a12419}.history-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}.history-card button{padding:9px 12px}@media(max-width:720px){.history-actions button{flex:1 1 120px}}
+
+.confirm-controls select{padding:10px 12px;border:1px solid #b8c9c0;border-radius:8px;font-size:15px;max-width:100%}.confirm-controls label{margin:0}.comparison{min-width:900px}.comparison th{background:#e6f4eb}.dim-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dim-box{padding:16px;border:1px solid #cbded1;border-radius:10px;background:#f6faf7}.dim-box strong{display:block;font-size:26px;color:#146534}.confirm-panel{border:1px solid #b8d4c0;background:#f5fbf6;padding:16px;border-radius:10px;margin-top:18px}.confirm-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0}.official{border:2px solid #15803d;border-radius:10px;padding:16px;margin-top:14px;background:#e8f7ed}.official strong{display:block;font-size:30px;color:#11602e}.unconfirmed{color:#8a5211}.history-origin{font-size:12px;color:#526578}.copy-actions .actions{margin-top:8px}.history-card{overflow-wrap:anywhere}@media(max-width:720px){.dim-pair{grid-template-columns:1fr}.confirm-controls{align-items:stretch;flex-direction:column}.confirm-controls button,.confirm-controls select{width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<header><h1>ANH ĐÀO EXPRESS</h1><p>Weight Calculator V4 – Nội bộ Dual DIM & Confirmation</p></header>
+<main>
+<p class="note"><strong>PHIÊN BẢN NỘI BỘ V4:</strong> So sánh DIM 5000 và DIM 6000; nhân viên chọn và xác nhận hệ số chính thức. Bản HTML thử nghiệm chưa có xác thực đăng nhập.</p>
+<section class="panel" aria-labelledby="entryTitle">
+<h2 id="entryTitle">A. Thông tin kiện hàng</h2>
+<form id="shipmentForm" novalidate>
+<div id="packageList"></div>
+<p class="note" id="dimNote">Hệ số quy đổi tham khảo: <strong>5.000 cm³/kg</strong></p>
+<button type="button" id="addButton" class="outline">+ Thêm kiện</button>
+<div id="error" class="error" role="alert" hidden></div>
+<div class="actions"><button type="submit" class="primary">Tính toán</button><button type="button" id="clearButton" class="outline">Xóa toàn bộ dữ liệu</button></div>
+</form>
+</section>
+<section id="results" class="panel" aria-labelledby="resultTitle" hidden>
+<h2 id="resultTitle">C. Bảng kết quả</h2>
+<p class="note">Trên điện thoại, vuốt ngang bảng để xem đủ các cột.</p>
+<div class="table-wrap" role="region" aria-label="Bảng kết quả" tabindex="0"><table id="resultTable"><thead id="resultHead"></thead><tbody id="resultBody"></tbody></table></div>
+<div class="summary"><div class="summary-row"><span>Tổng số kiện</span><strong id="totalCount"></strong></div>
+<div class="dim-pair"><div class="dim-box"><span>Tổng trọng lượng DIM 5000</span><strong id="total5000"></strong><small id="before5000"></small></div><div class="dim-box staff-only"><span>Tổng trọng lượng DIM 6000</span><strong id="total6000"></strong><small id="before6000"></small></div></div></div>
+
+<div id="confirmPanel" class="confirm-panel staff-only"><h3>Xác nhận hệ số DIM chính thức</h3><p class="note">Hệ số không được tự động chọn theo kết quả thấp hơn.</p><div class="confirm-controls"><label for="officialDim">Hệ số lựa chọn</label><select id="officialDim"><option value="">-- Chọn hệ số --</option><option value="5000">DIM 5000</option><option value="6000">DIM 6000</option></select><button type="button" id="confirmButton" class="primary">Xác nhận hệ số</button></div><p id="confirmationStatus" class="unconfirmed" role="status">Chưa xác nhận hệ số chính thức.</p><div id="officialResult" class="official" hidden><span>Tổng trọng lượng tính cước CHÍNH THỨC (<span id="officialDimLabel"></span>)</span><strong id="officialTotal"></strong></div></div>
+<h3>Giải thích từng dòng kiện</h3><ol id="explanation" class="explanation"></ol>
+<div class="copy-actions"><div class="actions"><button type="button" id="copyCompare" class="outline staff-only">Sao chép so sánh hai DIM</button><button type="button" id="copyOfficial" class="primary staff-only" disabled>Sao chép kết quả chính thức</button></div><p id="copyStatus" class="copy-status" role="status" aria-live="polite" hidden></p><div id="manualCopy" class="manual-copy" hidden><label for="manualText">Không thể sao chép tự động. Chọn nội dung dưới đây và nhấn Ctrl + C.</label><textarea id="manualText" readonly></textarea></div></div>
+</section>
+<section class="panel guide" aria-labelledby="guideTitle">
+<h2 id="guideTitle">B. Hướng dẫn</h2>
+<p>Công thức tính trọng lượng thể tích: (Dài × Rộng × Cao) / hệ số DIM (5.000 hoặc 6.000).</p>
+<p>Trọng lượng tính cước được xác định bằng cách lấy trọng lượng lớn hơn giữa cân thực và cân thể tích, sau đó làm tròn theo quy định.</p>
+<p><strong>Từng kiện:</strong> Nếu trọng lượng lớn hơn được chọn ≤ 20 kg, làm tròn lên nấc 0,5 kg; nếu > 20 kg, làm tròn lên số nguyên kg.</p>
+<p><strong>Nhiều kiện:</strong> Làm tròn từng kiện trước, nhân với số lượng kiện giống nhau, rồi cộng các dòng.</p>
+<p><strong>Tổng lô hàng:</strong> Tổng ≤ 20 kg làm tròn lên nấc 0,5 kg; tổng > 20 kg làm tròn lên số nguyên kg. Nếu đã đúng nấc thì giữ nguyên.</p>
+</section>
+
+<section class="panel" id="historySection" aria-labelledby="historyTitle">
+<div class="history-head"><h2 id="historyTitle">D. Lịch sử tính trọng lượng</h2><button type="button" id="deleteHistory" class="remove">Xóa lịch sử</button></div>
+<p class="note">Lịch sử V4 lưu riêng tối đa 20 lần tính; lịch sử V3 chỉ đọc, không ghi đè. Không nhập thông tin cá nhân khách hàng.</p>
+<p id="historyMessage" class="history-message" role="status" aria-live="polite"></p>
+<div id="historyList" class="history-list"></div>
+</section>
+</main></div>
+<script>
+'use strict';
+// V4 kế thừa quy tắc BigInt, dữ liệu đầu vào và làm tròn của V3.
+const list = document.getElementById('packageList');
+const form = document.getElementById('shipmentForm');
+const errorBox = document.getElementById('error');
+const results = document.getElementById('results');
+const resultBody = document.getElementById('resultBody');
+const explanation = document.getElementById('explanation');
+const MAX = BigInt(Number.MAX_SAFE_INTEGER);
+const BASE_DEN = 1000000n; // (100^3): đơn vị 0,01 cm cho mỗi chiều.
+const HISTORY_V3_KEY = 'anhdao_weight_history_v1';
+const HISTORY_V4_KEY = 'anhdao_weight_history_v4';
+const copyStatus = document.getElementById('copyStatus');
+const manualCopy = document.getElementById('manualCopy');
+const manualText = document.getElementById('manualText');
+const historyList = document.getElementById('historyList');
+const historyMessage = document.getElementById('historyMessage');
+
+const officialDim = document.getElementById('officialDim');
+const confirmationStatus = document.getElementById('confirmationStatus');
+let nextId = 0;
+let resultVersion = 0;
+let currentResult = null;
+let confirmedDivisor = null;
+let historyV4 = [];
+let historyV3 = [];
+let historyReadWarning = '';
+let historyWritable = true;
+
+function parseHundredths(text) {
+  const s = String(text).trim().replace(',', '.');
+  if (!/^(?:\d+)(?:\.\d{1,2})?$/.test(s)) throw Error('Chỉ nhập số dương với tối đa 2 chữ số thập phân.');
+  const [whole, fraction = ''] = s.split('.');
+  const value = BigInt(whole) * 100n + BigInt((fraction + '00').slice(0, 2));
+  if (value <= 0n) throw Error('Mọi kích thước và cân thực phải lớn hơn 0.');
+  if (value > MAX) throw Error('Giá trị vượt phạm vi số nguyên an toàn của JavaScript.');
+  return value;
+}
+function parseQuantity(text) {
+  const s = String(text).trim();
+  if (!/^\d+$/.test(s)) throw Error('Số lượng kiện phải là số nguyên dương.');
+  const n = BigInt(s);
+  if (n <= 0n || n > MAX) throw Error('Số lượng kiện phải là số nguyên dương trong phạm vi an toàn.');
+  return n;
+}
+function ceilDiv(a,b) { return (a+b-1n)/b; }
+function checkSafe(n) {
+  if (n > MAX || n < 0n) throw Error('Kết quả vượt phạm vi tính toán an toàn của JavaScript.');
+  return n;
+}
+// Kế thừa nguyên quy tắc làm tròn V3, chỉ tham số hóa mẫu số.
+function roundWeight(numerator, den) {
+  const step = numerator <= 20n * den ? den / 2n : den;
+  return checkSafe(ceilDiv(numerator, step) * (step === den ? 2n : 1n));
+}
+function formatInteger(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function formatDecimal(n, scale) {
+  const whole = n / scale;
+  const fraction = (n % scale).toString().padStart((scale-1n).toString().length,'0').replace(/0+$/,'');
+  return formatInteger(whole) + (fraction ? ',' + fraction : '');
+}
+function kgHalf(n) { return formatDecimal(n*5n,10n)+' kg'; }
+// Khác V3: mẫu số phụ thuộc divisor. Hiển thị tối đa 10 chữ số sau dấu phẩy.
+function kgFraction(numerator, den) {
+  const scale = 10000000000n;
+  const scaled = numerator * scale / den;
+  const rem = numerator * scale % den;
+  return formatDecimal(scaled,scale) + (rem ? '…' : '') + ' kg';
+}
+function invalidate() {
+  resultVersion++;
+  currentResult = null;
+  confirmedDivisor = null;
+  results.hidden = true;
+  errorBox.hidden = true;
+  copyStatus.hidden = true;
+  manualCopy.hidden = true;
+  manualText.value = '';
+  officialDim.value = '';
+  document.getElementById('officialResult').hidden = true;
+  document.getElementById('copyOfficial').disabled = true;
+  confirmationStatus.textContent = 'Chưa xác nhận hệ số chính thức.';
+}
+function addPackage(values = null) {
+  const id = ++nextId;
+  const article = document.createElement('div');
+  article.className = 'package';
+  article.dataset.packageId = String(id);
+  article.innerHTML = `<div class="package-head"><h3 class="package-title">Kiện ${list.children.length + 1}</h3><button type="button" class="remove">Xóa kiện</button></div><div class="fields">
+  <div><label for="length-${id}">Chiều dài (cm)</label><input id="length-${id}" data-field="length" inputmode="decimal" placeholder="50" autocomplete="off"></div>
+  <div><label for="width-${id}">Chiều rộng (cm)</label><input id="width-${id}" data-field="width" inputmode="decimal" placeholder="40" autocomplete="off"></div>
+  <div><label for="height-${id}">Chiều cao (cm)</label><input id="height-${id}" data-field="height" inputmode="decimal" placeholder="33" autocomplete="off"></div>
+  <div><label for="actual-${id}">Cân thực (kg)</label><input id="actual-${id}" data-field="actual" inputmode="decimal" placeholder="12" autocomplete="off"></div>
+  <div class="quantity"><label for="quantity-${id}">Số lượng kiện</label><input id="quantity-${id}" data-field="quantity" inputmode="numeric" value="1" autocomplete="off"></div>
+  </div>`;
+  article.querySelector('.remove').addEventListener('click', () => {
+    if (list.children.length === 1) article.querySelectorAll('input').forEach(i => i.value = i.dataset.field === 'quantity' ? '1' : '');
+    else article.remove();
+    renumber(); invalidate();
+  });
+  list.append(article);
+  if (values) for (const field of ['length','width','height','actual','quantity']) {
+    article.querySelector(`[data-field="${field}"]`).value = values[field] == null ? (field === 'quantity' ? '1' : '') : String(values[field]);
+  }
+  renumber(); invalidate();
+}
+function renumber() { [...list.children].forEach((el,i) => el.querySelector('.package-title').textContent = `Kiện ${i+1}`); }
+function readInputs() {
+  return [...list.children].map((article,i) => {
+    const get = field => article.querySelector(`[data-field="${field}"]`).value;
+    try {
+      const length = parseHundredths(get('length'));
+      const width = parseHundredths(get('width'));
+      const height = parseHundredths(get('height'));
+      const actual = parseHundredths(get('actual'));
+      const quantity = parseQuantity(get('quantity'));
+      return {index:i+1,length,width,height,actual,quantity};
+    } catch(err) { throw Error(`Dòng ${i+1}: ${err.message}`); }
+  });
+}
+// Hai lần gọi độc lập từ input gốc, không nội suy từ kết quả DIM kia.
+function calculateLine(input, divisor) {
+  if (divisor !== 5000 && divisor !== 6000) throw Error('Hệ số DIM không hợp lệ.');
+  const den = BASE_DEN * BigInt(divisor);
+  const volume = input.length * input.width * input.height;
+  const actualNum = input.actual * (den/100n);
+  const chosen = volume > actualNum ? volume : actualNum;
+  if (ceilDiv(chosen,den) > MAX) throw Error(`Dòng ${input.index}: Trọng lượng vượt phạm vi an toàn.`);
+  const roundedHalf = roundWeight(chosen,den);
+  const rowHalf = checkSafe(roundedHalf*input.quantity);
+  return {...input,volume,chosen,roundedHalf,rowHalf,den,source:volume > actualNum ? 'thể tích' : (volume < actualNum ? 'cân thực' : 'hai loại bằng nhau')};
+}
+function calculateShipment(inputs,divisor) {
+  const lines = inputs.map(input => calculateLine(input,divisor));
+  let totalCount = 0n, totalHalf = 0n;
+  for (const line of lines) {
+    totalCount = checkSafe(totalCount+line.quantity);
+    totalHalf = checkSafe(totalHalf+line.rowHalf);
+  }
+  const finalHalf = totalHalf <= 40n ? totalHalf : ceilDiv(totalHalf,2n)*2n;
+  checkSafe(finalHalf);
+  return {divisor,lines,totalCount,totalHalf,finalHalf};
+}
+function computeBoth(inputs) { return {a:calculateShipment(inputs,5000),b:calculateShipment(inputs,6000)}; }
+function td(tr,text) { const cell=document.createElement('td');cell.textContent=text;tr.append(cell); }
+function showError(message) { invalidate();errorBox.textContent=message;errorBox.hidden=false; }
+function setMode() {
+  document.getElementById('dimNote').textContent='Nội bộ: so sánh hệ số 5.000 và 6.000 cm³/kg.';
+  if (currentResult) renderResult();
+  copyStatus.hidden=true;manualCopy.hidden=true;
+}
+function renderResult() {
+  if (!currentResult) return;
+  const {a,b} = currentResult;
+  const staff = true;
+  const headers = staff ? ['STT','Số lượng','Kích thước (cm)','Cân thực/kiện','DIM 5000: thể tích/kiện','DIM 5000: chọn/kiện','DIM 5000: làm tròn/kiện','DIM 5000: tổng dòng','DIM 6000: thể tích/kiện','DIM 6000: chọn/kiện','DIM 6000: làm tròn/kiện','DIM 6000: tổng dòng'] : ['STT','Số lượng','Kích thước (cm)','Cân thực/kiện','Thể tích/kiện DIM 5000','Chọn/kiện','Làm tròn/kiện','Tổng dòng'];
+  const hr=document.createElement('tr');headers.forEach(h=>{const th=document.createElement('th');th.textContent=h;hr.append(th);});
+  document.getElementById('resultHead').replaceChildren(hr);
+  resultBody.replaceChildren();explanation.replaceChildren();
+  for (let i=0;i<a.lines.length;i++) {
+    const x=a.lines[i],y=b.lines[i],tr=document.createElement('tr');
+    const base=[String(x.index),formatInteger(x.quantity),`${formatDecimal(x.length,100n)} × ${formatDecimal(x.width,100n)} × ${formatDecimal(x.height,100n)}`,formatDecimal(x.actual,100n)+' kg'];
+    const values = line => [kgFraction(line.volume,line.den),kgFraction(line.chosen,line.den),kgHalf(line.roundedHalf),kgHalf(line.rowHalf)];
+    [...base,...values(x),...(staff?values(y):[])].forEach(v=>td(tr,v));resultBody.append(tr);
+    const li=document.createElement('li');
+    li.textContent=staff ? `Dòng ${x.index}: DIM 5000 chọn ${x.source}, ${kgHalf(x.roundedHalf)}/kiện → ${kgHalf(x.rowHalf)}; DIM 6000 chọn ${y.source}, ${kgHalf(y.roundedHalf)}/kiện → ${kgHalf(y.rowHalf)}.` : `Dòng ${x.index}: chọn ${x.source} (${kgFraction(x.chosen,x.den)}), làm tròn ${kgHalf(x.roundedHalf)}/kiện, nhân ${formatInteger(x.quantity)} = ${kgHalf(x.rowHalf)}.`;
+    explanation.append(li);
+  }
+  document.getElementById('totalCount').textContent=formatInteger(a.totalCount);
+  document.getElementById('total5000').textContent=kgHalf(a.finalHalf);
+  document.getElementById('total6000').textContent=kgHalf(b.finalHalf);
+  document.getElementById('before5000').textContent='Trước làm tròn cuối: '+kgHalf(a.totalHalf);
+  document.getElementById('before6000').textContent='Trước làm tròn cuối: '+kgHalf(b.totalHalf);
+  document.getElementById('resultTable').classList.toggle('comparison',staff);
+  updateConfirmationDisplay();
+}
+function updateConfirmationDisplay() {
+  const confirmed=confirmedDivisor!==null && currentResult!==null;
+  document.getElementById('officialResult').hidden=!confirmed;
+  document.getElementById('copyOfficial').disabled=!confirmed;
+  confirmationStatus.textContent=confirmed ? `Đã xác nhận DIM ${confirmedDivisor} cho kết quả hiện tại. Nếu sửa dữ liệu, xác nhận sẽ tự hủy.` : 'Chưa xác nhận hệ số chính thức.';
+  if (confirmed) {
+    document.getElementById('officialDimLabel').textContent='DIM '+confirmedDivisor;
+    document.getElementById('officialTotal').textContent=kgHalf((confirmedDivisor===5000?currentResult.a:currentResult.b).finalHalf);
+  }
+}
+function serializeInputs(inputs) {return inputs.map(x=>({length:formatDecimal(x.length,100n),width:formatDecimal(x.width,100n),height:formatDecimal(x.height,100n),actual:formatDecimal(x.actual,100n),quantity:x.quantity.toString()}));}
+function snapshotResult(inputs,result,confirmed=null) {
+  return {schema:4,time:Date.now(),lines:serializeInputs(inputs),dim5000:{totalCount:result.a.totalCount.toString(),totalBefore:kgHalf(result.a.totalHalf),totalCharge:kgHalf(result.a.finalHalf),rows:result.a.lines.map(x=>({volume:kgFraction(x.volume,x.den),chosen:kgFraction(x.chosen,x.den),rounded:kgHalf(x.roundedHalf),rowTotal:kgHalf(x.rowHalf)}))},dim6000:{totalCount:result.b.totalCount.toString(),totalBefore:kgHalf(result.b.totalHalf),totalCharge:kgHalf(result.b.finalHalf),rows:result.b.lines.map(x=>({volume:kgFraction(x.volume,x.den),chosen:kgFraction(x.chosen,x.den),rounded:kgHalf(x.roundedHalf),rowTotal:kgHalf(x.rowHalf)}))},confirmedDivisor:confirmed};
+}
+function validateV4(entry) {
+  try {
+    if (!entry || entry.schema!==4 || !Number.isSafeInteger(entry.time) || entry.time<0 || entry.time>Date.now()+86400000 || !Array.isArray(entry.lines) || entry.lines.length<1 || entry.lines.length>1000 || ![null,5000,6000].includes(entry.confirmedDivisor)) return false;
+    const inputs=entry.lines.map((x,i)=>{
+      if (!x || !['length','width','height','actual','quantity'].every(k=>typeof x[k]==='string'&&x[k].length>0&&x[k].length<=80)) throw Error('Invalid');
+      return {index:i+1,length:parseHundredths(x.length),width:parseHundredths(x.width),height:parseHundredths(x.height),actual:parseHundredths(x.actual),quantity:parseQuantity(x.quantity)};
+    });
+    const computed=computeBoth(inputs);
+    const expected=snapshotResult(inputs,computed,entry.confirmedDivisor);
+    return JSON.stringify(entry.lines)===JSON.stringify(expected.lines) && JSON.stringify(entry.dim5000)===JSON.stringify(expected.dim5000) && JSON.stringify(entry.dim6000)===JSON.stringify(expected.dim6000);
+  } catch(_) {return false;}
+}
+// Giữ logic kiểm tra V3 theo đúng cấu trúc dữ liệu gốc; tuyệt đối không ghi vào khóa V3.
+function validateV3(entry) {
+  try {
+    if (!entry || !Number.isSafeInteger(entry.time) || entry.time<0 || entry.time>Date.now()+86400000 || !Array.isArray(entry.lines) || entry.lines.length<1 || entry.lines.length>1000) return false;
+    const inputs=entry.lines.map((x,i)=>{
+      if (!x || !['length','width','height','actual','quantity','volume','chosen','rounded','rowTotal'].every(k=>typeof x[k]==='string'&&x[k].length>0&&x[k].length<=80)) throw Error('Invalid');
+      return {index:i+1,length:parseHundredths(x.length),width:parseHundredths(x.width),height:parseHundredths(x.height),actual:parseHundredths(x.actual),quantity:parseQuantity(x.quantity)};
+    });
+    const result=calculateShipment(inputs,5000);
+    if (!result.lines.every((x,i)=>entry.lines[i].volume===kgFraction(x.volume,x.den)&&entry.lines[i].chosen===kgFraction(x.chosen,x.den)&&entry.lines[i].rounded===kgHalf(x.roundedHalf)&&entry.lines[i].rowTotal===kgHalf(x.rowHalf))) return false;
+    return entry.totalCount===result.totalCount.toString()&&entry.totalBefore===kgHalf(result.totalHalf)&&entry.totalCharge===kgHalf(result.finalHalf);
+  }catch(_){return false;}
+}
+function readHistory(key,validator,label) {
+  try {
+    const raw=localStorage.getItem(key);
+    if (raw===null) return [];
+    const entries=JSON.parse(raw);
+    if (!Array.isArray(entries)) throw Error('Invalid list');
+    const valid=entries.filter(validator);
+    if (valid.length!==entries.length) historyReadWarning+=`Một số bản ghi ${label} không hợp lệ đã được bỏ qua. `;
+    return valid.sort((a,b)=>b.time-a.time).slice(0,20);
+  }catch(_){historyReadWarning+=`Không thể đọc lịch sử ${label}; dữ liệu gốc không bị sửa. `;if(key===HISTORY_V4_KEY)historyWritable=false;return [];}
+}
+function saveHistoryV4(entry,replaceTime=null) {
+  if (!historyWritable) {setHistoryMessage('Lịch sử V4 có dữ liệu không thể đọc; ứng dụng không ghi đè để bảo vệ dữ liệu cũ.',true);return;}
+  const updated=replaceTime===null ? [entry,...historyV4].slice(0,20) : historyV4.map(x=>x.time===replaceTime?entry:x);
+  try {
+    localStorage.setItem(HISTORY_V4_KEY,JSON.stringify(updated));
+    historyV4=updated;
+    setHistoryMessage('Đã lưu lịch sử V4 trên trình duyệt.',false);
+  }catch(_){setHistoryMessage('Không thể lưu lịch sử (dung lượng hoặc quyền trình duyệt). Kết quả vẫn sử dụng được.',true);}
+  renderHistory();
+}
+function setHistoryMessage(text,warning) {historyMessage.textContent=text;historyMessage.classList.toggle('history-warning',warning);}
+function renderHistory() {
+  historyList.replaceChildren();
+  if (!historyV4.length&&!historyV3.length) {const p=document.createElement('p');p.className='note';p.textContent='Chưa có lịch sử tính trọng lượng.';historyList.append(p);return;}
+  const records=[...historyV4.map(x=>({entry:x,version:4})),...historyV3.map(x=>({entry:x,version:3}))].sort((a,b)=>b.entry.time-a.entry.time);
+  for (const {entry,version} of records) {
+    const card=document.createElement('article');card.className='history-card';
+    const heading=document.createElement('h3');heading.textContent=`${new Date(entry.time).toLocaleString('vi-VN')} · ${version===4?'V4':'V3 (chỉ đọc)'}`;
+    const status=document.createElement('p');status.className='history-origin';
+    status.textContent=version===4 ? (entry.confirmedDivisor ? `Đã xác nhận DIM ${entry.confirmedDivisor} (tại thời điểm lưu)`:'Chưa xác nhận') : 'V3: chỉ lưu DIM 5000, không có xác nhận';
+    const summary=document.createElement('p');summary.textContent=version===4?`DIM 5000: ${entry.dim5000.totalCharge} | DIM 6000: ${entry.dim6000.totalCharge}`:`DIM 5000: ${entry.totalCharge}`;
+    const actions=document.createElement('div');actions.className='history-actions';
+    const view=document.createElement('button');view.type='button';view.className='outline';view.textContent='Xem chi tiết';
+    const reopen=document.createElement('button');reopen.type='button';reopen.className='primary';reopen.textContent='Mở lại dữ liệu';
+    const detail=document.createElement('div');detail.className='history-detail';detail.hidden=true;
+    detail.textContent=entry.lines.map((x,i)=>`Dòng ${i+1}: ${x.length} × ${x.width} × ${x.height} cm | Cân thực ${x.actual} kg | SL ${x.quantity}`).join('\n')+'\n'+summary.textContent+'\n'+status.textContent;
+    view.addEventListener('click',()=>{detail.hidden=!detail.hidden;view.textContent=detail.hidden?'Xem chi tiết':'Ẩn chi tiết';});
+    reopen.addEventListener('click',()=>{
+      list.replaceChildren();entry.lines.forEach(x=>addPackage(x));
+      invalidate();
+      // Hệ số cũ được khôi phục để xem, nhưng KHÔNG tự xác nhận lại.
+      if (version===4 && entry.confirmedDivisor) officialDim.value=String(entry.confirmedDivisor);
+      window.scrollTo({top:0,behavior:'auto'});
+      setHistoryMessage(`Đã mở dữ liệu ${version===4?'V4':'V3'}. ${version===4&&entry.confirmedDivisor?'Đã khôi phục hệ số từng chọn, nhưng cần tính và xác nhận lại.':'Nhấn Tính toán để có kết quả mới.'}`,false);
+    });
+    actions.append(view,reopen);card.append(heading,status,summary,actions,detail);historyList.append(card);
+  }
+}
+function buildCopy(result,mode) {
+  const {a,b}=result;
+  const parts=['ANH ĐÀO EXPRESS','KẾT QUẢ TÍNH TRỌNG LƯỢNG TÍNH CƯỚC',''];
+  const append=(shipment)=>{
+    parts.push(`HỆ SỐ DIM ${shipment.divisor}`);
+    for (const x of shipment.lines) {
+      parts.push(`Dòng ${x.index}: ${formatDecimal(x.length,100n)} × ${formatDecimal(x.width,100n)} × ${formatDecimal(x.height,100n)} cm; cân thực ${formatDecimal(x.actual,100n)} kg; SL ${formatInteger(x.quantity)}; thể tích ${kgFraction(x.volume,x.den)}; chọn ${kgFraction(x.chosen,x.den)}; làm tròn/kiện ${kgHalf(x.roundedHalf)}; tổng dòng ${kgHalf(x.rowHalf)}.`);
+    }
+    parts.push(`Tổng số kiện: ${formatInteger(shipment.totalCount)}`);
+    parts.push(`Tổng trước làm tròn cuối: ${kgHalf(shipment.totalHalf)}`);
+    parts.push(`TỔNG DIM ${shipment.divisor}: ${kgHalf(shipment.finalHalf)}`,'');
+  };
+  if (mode==='compare') {append(a);append(b);parts.push('BẢNG SO SÁNH NỘI BỘ – KHÔNG PHẢI KẾT QUẢ CHÍNH THỨC.');}
+  else if (mode==='official') {
+    if (!confirmedDivisor) throw Error('Chưa xác nhận hệ số chính thức.');
+    append(confirmedDivisor===5000?a:b);
+    parts.push(`ĐÃ XÁC NHẬN HỆ SỐ DIM ${confirmedDivisor} – TRỌNG LƯỢNG TÍNH CƯỚC CHÍNH THỨC: ${kgHalf((confirmedDivisor===5000?a:b).finalHalf)}`);
+  }
+  parts.push('Đây là trọng lượng tính cước, không phải giá tiền vận chuyển.');
+  return parts.join('\n');
+}
+function legacyCopy(text) {
+  const field=document.createElement('textarea');field.value=text;field.setAttribute('readonly','');field.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.append(field);field.focus();field.select();let ok=false;
+  try{ok=typeof document.execCommand==='function'&&document.execCommand('copy');}catch(_){}field.remove();return ok;
+}
+async function copyOutput(kind) {
+  if (!currentResult||results.hidden) return;
+  if (kind==='official'&&!confirmedDivisor) {copyStatus.textContent='Cần xác nhận hệ số trước khi sao chép chính thức.';copyStatus.hidden=false;return;}
+  const text=buildCopy(currentResult,kind),version=resultVersion;
+  let copied=false;
+  if (navigator.clipboard&&typeof navigator.clipboard.writeText==='function') {try{await navigator.clipboard.writeText(text);copied=true;}catch(_){}}
+  if (version!==resultVersion||results.hidden) return;
+  if (!copied) copied=legacyCopy(text);
+  if (version!==resultVersion||results.hidden) return;
+  if (copied) {manualCopy.hidden=true;manualText.value='';copyStatus.textContent='Đã sao chép kết quả.';}
+  else {manualText.value=text;manualCopy.hidden=false;copyStatus.textContent='Không thể sao chép tự động. Vui lòng sao chép thủ công.';manualText.focus();manualText.select();}
+  copyStatus.hidden=false;
+}
+form.addEventListener('input',invalidate);
+document.getElementById('addButton').addEventListener('click',()=>addPackage());
+document.getElementById('clearButton').addEventListener('click',()=>{list.replaceChildren();addPackage();invalidate();});
+form.addEventListener('submit',event=>{
+  event.preventDefault();
+  try {
+    const inputs=readInputs();
+    const computed=computeBoth(inputs);
+    currentResult=computed;confirmedDivisor=null;
+    resultVersion++;errorBox.hidden=true;results.hidden=false;
+    renderResult();
+    // Không tự chọn 6000; giữ lựa chọn được khôi phục nhưng vẫn yêu cầu xác nhận.
+    saveHistoryV4(snapshotResult(inputs,computed,null));
+    results.scrollIntoView({behavior:'auto',block:'start'});
+  }catch(err){showError(err.message);}
+});
+officialDim.addEventListener('change',()=>{
+  confirmedDivisor=null;resultVersion++;updateConfirmationDisplay();copyStatus.hidden=true;manualCopy.hidden=true;
+});
+document.getElementById('confirmButton').addEventListener('click',()=>{
+  if (!currentResult||results.hidden) {confirmationStatus.textContent='Hãy tính toán trước khi xác nhận.';return;}
+  const divisor=Number(officialDim.value);
+  if (![5000,6000].includes(divisor)) {confirmationStatus.textContent='Vui lòng chọn DIM 5000 hoặc DIM 6000.';return;}
+  confirmedDivisor=divisor;resultVersion++;updateConfirmationDisplay();
+  // Lưu bản ghi xác nhận mới, không sửa hoặc ghi đè bản ghi chưa xác nhận.
+  const inputs=readInputs();saveHistoryV4(snapshotResult(inputs,currentResult,divisor));
+});
+document.getElementById('copyCompare').addEventListener('click',()=>copyOutput('compare'));
+document.getElementById('copyOfficial').addEventListener('click',()=>copyOutput('official'));
+document.getElementById('deleteHistory').addEventListener('click',()=>{
+  if (!window.confirm('Chỉ xóa lịch sử V4? Lịch sử V3 sẽ được giữ nguyên.')) return;
+  if (!historyWritable) {setHistoryMessage('Không thể xóa tự động khi dữ liệu V4 đang lỗi. Hãy sao lưu và kiểm tra thủ công.',true);return;}
+  try {localStorage.removeItem(HISTORY_V4_KEY);historyV4=[];setHistoryMessage('Đã xóa lịch sử V4; lịch sử V3 được giữ nguyên.',false);renderHistory();}
+  catch(_){setHistoryMessage('Không thể xóa lịch sử V4 trong bộ nhớ trình duyệt.',true);}
+});
+addPackage();
+historyV4=readHistory(HISTORY_V4_KEY,validateV4,'V4');
+historyV3=readHistory(HISTORY_V3_KEY,validateV3,'V3');
+if (historyReadWarning) setHistoryMessage(historyReadWarning,true);
+renderHistory();setMode();
+</script>
+</body>
+</html>
