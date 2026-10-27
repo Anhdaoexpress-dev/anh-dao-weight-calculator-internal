@@ -13,9 +13,82 @@
 .history-list{display:grid;gap:12px}.history-card{border:1px solid #dce5ef;border-radius:10px;padding:15px;background:#fff}.history-card h3{font-size:15px;margin:0 0 5px}.history-card p{margin:5px 0}.history-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.history-detail{background:#f0f6ff;border-radius:8px;padding:12px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}.history-message{font-size:14px;color:#47617d;margin:10px 0}.history-warning{color:#a12419}.history-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}.history-card button{padding:9px 12px}@media(max-width:720px){.history-actions button{flex:1 1 120px}}
 
 .confirm-controls select{padding:10px 12px;border:1px solid #b8c9c0;border-radius:8px;font-size:15px;max-width:100%}.confirm-controls label{margin:0}.comparison{min-width:900px}.comparison th{background:#e6f4eb}.dim-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dim-box{padding:16px;border:1px solid #cbded1;border-radius:10px;background:#f6faf7}.dim-box strong{display:block;font-size:26px;color:#146534}.confirm-panel{border:1px solid #b8d4c0;background:#f5fbf6;padding:16px;border-radius:10px;margin-top:18px}.confirm-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0}.official{border:2px solid #15803d;border-radius:10px;padding:16px;margin-top:14px;background:#e8f7ed}.official strong{display:block;font-size:30px;color:#11602e}.unconfirmed{color:#8a5211}.history-origin{font-size:12px;color:#526578}.copy-actions .actions{margin-top:8px}.history-card{overflow-wrap:anywhere}@media(max-width:720px){.dim-pair{grid-template-columns:1fr}.confirm-controls{align-items:stretch;flex-direction:column}.confirm-controls button,.confirm-controls select{width:100%}}
+
+/* BAI 11 - Vung du lieu PDF */
+#printReport {
+  display: none;
+}
+/* BÀI 11 - Định dạng báo cáo PDF */
+#printReport {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0;
+  }
+
+  body > .container {
+    display: none !important;
+  }
+
+  #printReport {
+    display: block !important;
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    color: #111;
+  }
+
+  #printReport h1 {
+    text-align: center;
+    font-size: 20pt;
+    margin-bottom: 5px;
+  }
+
+  #printReport h2 {
+    text-align: center;
+    font-size: 13pt;
+    margin-bottom: 18px;
+  }
+
+  #printReport .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 18px;
+    font-size: 9pt;
+  }
+
+  #printReport .print-table th,
+  #printReport .print-table td {
+    border: 1px solid #999;
+    padding: 6px;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  #printReport .print-table th {
+    background: #eee;
+  }
+
+  #printReport .print-table tr {
+    break-inside: avoid;
+  }
+}
 </style>
 </head>
 <body>
+  
+<!-- BAI 11 - Bao cao PDF -->
+<section id="printReport" aria-label="Bao cao trong luong tinh cuoc">
+</section>
+
 <div class="container">
 <header><h1>ANH ĐÀO EXPRESS</h1><p>Weight Calculator V4 – Nội bộ Dual DIM & Confirmation</p></header>
 <main>
@@ -73,6 +146,16 @@
   <p>Tổng trọng lượng tính cước:</p>
   <strong id="officialTotal"></strong>
 </div>
+
+<button
+  type="button"
+  id="exportPdfButton"
+  class="primary"
+  hidden
+>
+  Xuất PDF kết quả chính thức
+</button>
+
 </div>
 <h3>Giải thích từng dòng kiện</h3><ol id="explanation" class="explanation"></ol>
 <div class="copy-actions"><div class="actions"><button type="button" id="copyCompare" class="outline staff-only">Sao chép so sánh hai DIM</button><button type="button" id="copyOfficial" class="primary staff-only" disabled>Sao chép kết quả chính thức</button></div><p id="copyStatus" class="copy-status" role="status" aria-live="polite" hidden></p><div id="manualCopy" class="manual-copy" hidden><label for="manualText">Không thể sao chép tự động. Chọn nội dung dưới đây và nhấn Ctrl + C.</label><textarea id="manualText" readonly></textarea></div></div>
@@ -332,6 +415,7 @@ function updateConfirmationDisplay() {
   const confirmed=confirmedDivisor!==null && currentResult!==null;
   document.getElementById('officialResult').hidden=!confirmed;
   document.getElementById('copyOfficial').disabled=!confirmed;
+  document.getElementById('exportPdfButton').hidden = !confirmed;
   confirmationStatus.textContent=confirmed ? `Đã xác nhận DIM ${confirmedDivisor} cho kết quả hiện tại. Nếu sửa dữ liệu, xác nhận sẽ tự hủy.` : 'Chưa xác nhận hệ số chính thức.';
   
 if (confirmed) {
@@ -431,6 +515,103 @@ function renderHistory() {
     actions.append(view,reopen);card.append(heading,status,summary,actions,detail);historyList.append(card);
   }
 }
+// BÀI 11 - Tạo nội dung báo cáo PDF
+function buildPrintReport() {
+  // Chỉ tạo báo cáo khi đã xác nhận hệ số DIM
+  if (!currentResult || !confirmedDivisor) {
+    throw new Error('Vui lòng tính toán và xác nhận hệ số DIM trước.');
+  }
+
+  // Lấy kết quả DIM đã được nhân viên xác nhận
+  const shipment = confirmedDivisor === 5000
+    ? currentResult.a
+    : currentResult.b;
+
+  // Tạo các phần tử HTML an toàn
+  const report = document.getElementById('printReport');
+  report.replaceChildren();
+
+  const title = document.createElement('h1');
+  title.textContent = 'ANH ĐÀO EXPRESS';
+  report.appendChild(title);
+
+  const subtitle = document.createElement('h2');
+  subtitle.textContent = 'BÁO CÁO TRỌNG LƯỢNG TÍNH CƯỚC';
+  report.appendChild(subtitle);
+
+  const dim = document.createElement('p');
+  dim.textContent = `Hệ số DIM chính thức: ${confirmedDivisor}`;
+  report.appendChild(dim);
+
+  const summary = document.createElement('div');
+
+  const fields = [
+    ['Tổng số kiện', formatInteger(shipment.totalCount)],
+    ['Tổng trọng lượng cân nặng', kgHalf(shipment.totalActualHalf)],
+    ['Tổng trọng lượng thể tích', kgHalf(shipment.totalVolumeHalf)],
+    ['TỔNG TRỌNG LƯỢNG TÍNH CƯỚC', kgHalf(shipment.finalHalf)]
+  ];
+
+  for (const [label, value] of fields) {
+    const p = document.createElement('p');
+    p.textContent = `${label}: ${value}`;
+    summary.appendChild(p);
+  }
+
+  report.appendChild(summary);
+  // BÀI 11 - Bảng chi tiết từng dòng kiện
+const table = document.createElement('table');
+table.className = 'print-table';
+
+const headers = [
+  'STT',
+  'Kích thước (cm)',
+  'Số lượng',
+  'Cân thực/kiện',
+  'Thể tích/kiện',
+  'Tính cước/kiện',
+  'Tổng tính cước'
+];
+
+const thead = document.createElement('thead');
+const headerRow = document.createElement('tr');
+
+for (const label of headers) {
+  const th = document.createElement('th');
+  th.textContent = label;
+  headerRow.appendChild(th);
+}
+
+thead.appendChild(headerRow);
+table.appendChild(thead);
+
+const tbody = document.createElement('tbody');
+
+for (const x of shipment.lines) {
+  const row = document.createElement('tr');
+
+  const values = [
+    String(x.index),
+    `${formatDecimal(x.length, 100n)} × ${formatDecimal(x.width, 100n)} × ${formatDecimal(x.height, 100n)}`,
+formatInteger(x.quantity),
+`${formatDecimal(x.actual, 100n)} kg`,
+    `${formatDecimal(x.volume, x.den)} kg`,
+    kgHalf(x.roundedHalf),
+    kgHalf(x.rowHalf)
+  ];
+
+  for (const value of values) {
+    const td = document.createElement('td');
+    td.textContent = value;
+    row.appendChild(td);
+  }
+
+  tbody.appendChild(row);
+}
+
+table.appendChild(tbody);
+report.appendChild(table);
+}
 function buildCopy(result,mode) {
   const {a,b}=result;
   const parts=['ANH ĐÀO EXPRESS','KẾT QUẢ TÍNH TRỌNG LƯỢNG TÍNH CƯỚC',''];
@@ -504,8 +685,32 @@ document.getElementById('confirmButton').addEventListener('click',()=>{
   // Lưu bản ghi xác nhận mới, không sửa hoặc ghi đè bản ghi chưa xác nhận.
   const inputs=readInputs();saveHistoryV4(snapshotResult(inputs,currentResult,divisor));
 });
+// BÀI 11 - Xuất PDF kết quả chính thức
+document.getElementById('exportPdfButton').addEventListener('click', () => {
+  try {
+    if (!currentResult || !confirmedDivisor) {
+      alert('Vui lòng tính toán và xác nhận DIM trước khi xuất PDF.');
+      return;
+    }
+
+    buildPrintReport();
+    window.print();
+
+  } catch (err) {
+    alert('Không thể tạo báo cáo PDF: ' + err.message);
+  }
+});
 document.getElementById('copyCompare').addEventListener('click',()=>copyOutput('compare'));
 document.getElementById('copyOfficial').addEventListener('click',()=>copyOutput('official'));
+
+document.getElementById('exportPdfButton').addEventListener('click', () => {
+  if (confirmedDivisor === null || currentResult === null || results.hidden) {
+    return;
+  }
+
+  window.print();
+});
+
 document.getElementById('deleteHistory').addEventListener('click',()=>{
   if (!window.confirm('Chỉ xóa lịch sử V4? Lịch sử V3 sẽ được giữ nguyên.')) return;
   if (!historyWritable) {setHistoryMessage('Không thể xóa tự động khi dữ liệu V4 đang lỗi. Hãy sao lưu và kiểm tra thủ công.',true);return;}
