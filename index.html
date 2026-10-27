@@ -35,9 +35,45 @@
 <p class="note">Trên điện thoại, vuốt ngang bảng để xem đủ các cột.</p>
 <div class="table-wrap" role="region" aria-label="Bảng kết quả" tabindex="0"><table id="resultTable"><thead id="resultHead"></thead><tbody id="resultBody"></tbody></table></div>
 <div class="summary"><div class="summary-row"><span>Tổng số kiện</span><strong id="totalCount"></strong></div>
-<div class="dim-pair"><div class="dim-box"><span>Tổng trọng lượng DIM 5000</span><strong id="total5000"></strong><small id="before5000"></small></div><div class="dim-box staff-only"><span>Tổng trọng lượng DIM 6000</span><strong id="total6000"></strong><small id="before6000"></small></div></div></div>
+<div class="dim-pair">
+  <div class="dim-box">
+    <span>DIM 5000</span>
+    <p>Tổng trọng lượng cân nặng: <b id="actual5000">--</b></p>
+    <p>Tổng trọng lượng thể tích: <b id="volume5000">--</b></p>
+    <p>Tổng trọng lượng tính cước:</p>
+    <strong id="total5000"></strong>
+    <small id="before5000"></small>
+  </div>
 
-<div id="confirmPanel" class="confirm-panel staff-only"><h3>Xác nhận hệ số DIM chính thức</h3><p class="note">Hệ số không được tự động chọn theo kết quả thấp hơn.</p><div class="confirm-controls"><label for="officialDim">Hệ số lựa chọn</label><select id="officialDim"><option value="">-- Chọn hệ số --</option><option value="5000">DIM 5000</option><option value="6000">DIM 6000</option></select><button type="button" id="confirmButton" class="primary">Xác nhận hệ số</button></div><p id="confirmationStatus" class="unconfirmed" role="status">Chưa xác nhận hệ số chính thức.</p><div id="officialResult" class="official" hidden><span>Tổng trọng lượng tính cước CHÍNH THỨC (<span id="officialDimLabel"></span>)</span><strong id="officialTotal"></strong></div></div>
+  <div class="dim-box staff-only">
+    <span>DIM 6000</span>
+    <p>Tổng trọng lượng cân nặng: <b id="actual6000">--</b></p>
+    <p>Tổng trọng lượng thể tích: <b id="volume6000">--</b></p>
+    <p>Tổng trọng lượng tính cước:</p>
+    <strong id="total6000"></strong>
+    <small id="before6000"></small>
+  </div>
+</div>
+</div>
+
+<div id="confirmPanel" class="confirm-panel staff-only"><h3>Xác nhận hệ số DIM chính thức</h3><p class="note">Hệ số không được tự động chọn theo kết quả thấp hơn.</p><div class="confirm-controls"><label for="officialDim">Hệ số lựa chọn</label><select id="officialDim"><option value="">-- Chọn hệ số --</option><option value="5000">DIM 5000</option><option value="6000">DIM 6000</option></select><button type="button" id="confirmButton" class="primary">Xác nhận hệ số</button></div><p id="confirmationStatus" class="unconfirmed" role="status">Chưa xác nhận hệ số chính thức.</p>
+<div id="officialResult" class="official" hidden>
+  <h3>KẾT QUẢ CHÍNH THỨC (<span id="officialDimLabel"></span>)</h3>
+
+  <p>
+    Tổng trọng lượng cân nặng:
+    <b id="officialActual">--</b>
+  </p>
+
+  <p>
+    Tổng trọng lượng thể tích:
+    <b id="officialVolume">--</b>
+  </p>
+
+  <p>Tổng trọng lượng tính cước:</p>
+  <strong id="officialTotal"></strong>
+</div>
+</div>
 <h3>Giải thích từng dòng kiện</h3><ol id="explanation" class="explanation"></ol>
 <div class="copy-actions"><div class="actions"><button type="button" id="copyCompare" class="outline staff-only">Sao chép so sánh hai DIM</button><button type="button" id="copyOfficial" class="primary staff-only" disabled>Sao chép kết quả chính thức</button></div><p id="copyStatus" class="copy-status" role="status" aria-live="polite" hidden></p><div id="manualCopy" class="manual-copy" hidden><label for="manualText">Không thể sao chép tự động. Chọn nội dung dưới đây và nhấn Ctrl + C.</label><textarea id="manualText" readonly></textarea></div></div>
 </section>
@@ -190,17 +226,70 @@ function calculateLine(input, divisor) {
   const rowHalf = checkSafe(roundedHalf*input.quantity);
   return {...input,volume,chosen,roundedHalf,rowHalf,den,source:volume > actualNum ? 'thể tích' : (volume < actualNum ? 'cân thực' : 'hai loại bằng nhau')};
 }
+
+
 function calculateShipment(inputs,divisor) {
   const lines = inputs.map(input => calculateLine(input,divisor));
-  let totalCount = 0n, totalHalf = 0n;
+
+  let totalCount = 0n;
+  let totalHalf = 0n;
+
+  // Tổng cân thực và thể tích sau làm tròn từng kiện.
+  let totalActualHalf = 0n;
+  let totalVolumeHalf = 0n;
+
+  const den = BASE_DEN * BigInt(divisor);
+
   for (const line of lines) {
-    totalCount = checkSafe(totalCount+line.quantity);
-    totalHalf = checkSafe(totalHalf+line.rowHalf);
+    totalCount = checkSafe(totalCount + line.quantity);
+
+    // Giữ nguyên trọng lượng tính cước từng dòng.
+    totalHalf = checkSafe(totalHalf + line.rowHalf);
+
+    // Làm tròn cân thực từng kiện, rồi nhân số lượng.
+    const actualHalfPerPiece = roundWeight(line.actual, 100n);
+    const actualHalfRow = checkSafe(
+      actualHalfPerPiece * line.quantity
+    );
+
+    // Làm tròn thể tích từng kiện, rồi nhân số lượng.
+    const volumeHalfPerPiece = roundWeight(line.volume, den);
+    const volumeHalfRow = checkSafe(
+      volumeHalfPerPiece * line.quantity
+    );
+
+    totalActualHalf = checkSafe(
+      totalActualHalf + actualHalfRow
+    );
+
+    totalVolumeHalf = checkSafe(
+      totalVolumeHalf + volumeHalfRow
+    );
   }
-  const finalHalf = totalHalf <= 40n ? totalHalf : ceilDiv(totalHalf,2n)*2n;
-  checkSafe(finalHalf);
-  return {divisor,lines,totalCount,totalHalf,finalHalf};
+
+  // Làm tròn tổng lô hàng lần cuối.
+  function roundTotalHalf(total) {
+    return checkSafe(
+      total <= 40n ? total : ceilDiv(total, 2n) * 2n
+    );
+  }
+
+  const finalHalf = roundTotalHalf(totalHalf);
+  totalActualHalf = roundTotalHalf(totalActualHalf);
+  totalVolumeHalf = roundTotalHalf(totalVolumeHalf);
+
+  return {
+    divisor,
+    lines,
+    totalCount,
+    totalHalf,
+    finalHalf,
+    totalActualHalf,
+    totalVolumeHalf
+  };
 }
+
+
 function computeBoth(inputs) { return {a:calculateShipment(inputs,5000),b:calculateShipment(inputs,6000)}; }
 function td(tr,text) { const cell=document.createElement('td');cell.textContent=text;tr.append(cell); }
 function showError(message) { invalidate();errorBox.textContent=message;errorBox.hidden=false; }
@@ -229,6 +318,11 @@ function renderResult() {
   document.getElementById('totalCount').textContent=formatInteger(a.totalCount);
   document.getElementById('total5000').textContent=kgHalf(a.finalHalf);
   document.getElementById('total6000').textContent=kgHalf(b.finalHalf);
+  document.getElementById('actual5000').textContent = kgHalf(a.totalActualHalf);
+document.getElementById('volume5000').textContent = kgHalf(a.totalVolumeHalf);
+
+document.getElementById('actual6000').textContent = kgHalf(b.totalActualHalf);
+document.getElementById('volume6000').textContent = kgHalf(b.totalVolumeHalf);
   document.getElementById('before5000').textContent='Trước làm tròn cuối: '+kgHalf(a.totalHalf);
   document.getElementById('before6000').textContent='Trước làm tròn cuối: '+kgHalf(b.totalHalf);
   document.getElementById('resultTable').classList.toggle('comparison',staff);
@@ -239,10 +333,25 @@ function updateConfirmationDisplay() {
   document.getElementById('officialResult').hidden=!confirmed;
   document.getElementById('copyOfficial').disabled=!confirmed;
   confirmationStatus.textContent=confirmed ? `Đã xác nhận DIM ${confirmedDivisor} cho kết quả hiện tại. Nếu sửa dữ liệu, xác nhận sẽ tự hủy.` : 'Chưa xác nhận hệ số chính thức.';
-  if (confirmed) {
-    document.getElementById('officialDimLabel').textContent='DIM '+confirmedDivisor;
-    document.getElementById('officialTotal').textContent=kgHalf((confirmedDivisor===5000?currentResult.a:currentResult.b).finalHalf);
-  }
+  
+if (confirmed) {
+  const selected = confirmedDivisor === 5000
+    ? currentResult.a
+    : currentResult.b;
+
+  document.getElementById('officialDimLabel').textContent =
+    'DIM ' + confirmedDivisor;
+
+  document.getElementById('officialActual').textContent =
+    kgHalf(selected.totalActualHalf);
+
+  document.getElementById('officialVolume').textContent =
+    kgHalf(selected.totalVolumeHalf);
+
+  document.getElementById('officialTotal').textContent =
+    kgHalf(selected.finalHalf);
+}
+
 }
 function serializeInputs(inputs) {return inputs.map(x=>({length:formatDecimal(x.length,100n),width:formatDecimal(x.width,100n),height:formatDecimal(x.height,100n),actual:formatDecimal(x.actual,100n),quantity:x.quantity.toString()}));}
 function snapshotResult(inputs,result,confirmed=null) {
@@ -330,9 +439,17 @@ function buildCopy(result,mode) {
     for (const x of shipment.lines) {
       parts.push(`Dòng ${x.index}: ${formatDecimal(x.length,100n)} × ${formatDecimal(x.width,100n)} × ${formatDecimal(x.height,100n)} cm; cân thực ${formatDecimal(x.actual,100n)} kg; SL ${formatInteger(x.quantity)}; thể tích ${kgFraction(x.volume,x.den)}; chọn ${kgFraction(x.chosen,x.den)}; làm tròn/kiện ${kgHalf(x.roundedHalf)}; tổng dòng ${kgHalf(x.rowHalf)}.`);
     }
-    parts.push(`Tổng số kiện: ${formatInteger(shipment.totalCount)}`);
-    parts.push(`Tổng trước làm tròn cuối: ${kgHalf(shipment.totalHalf)}`);
-    parts.push(`TỔNG DIM ${shipment.divisor}: ${kgHalf(shipment.finalHalf)}`,'');
+    
+parts.push(`Tổng số kiện: ${formatInteger(shipment.totalCount)}`);
+
+parts.push(`Tổng trọng lượng cân nặng: ${kgHalf(shipment.totalActualHalf)}`);
+
+parts.push(`Tổng trọng lượng thể tích: ${kgHalf(shipment.totalVolumeHalf)}`);
+
+parts.push(`Tổng trước làm tròn cuối: ${kgHalf(shipment.totalHalf)}`);
+
+parts.push(`TỔNG TRỌNG LƯỢNG TÍNH CƯỚC DIM ${shipment.divisor}: ${kgHalf(shipment.finalHalf)}`, '');
+
   };
   if (mode==='compare') {append(a);append(b);parts.push('BẢNG SO SÁNH NỘI BỘ – KHÔNG PHẢI KẾT QUẢ CHÍNH THỨC.');}
   else if (mode==='official') {
