@@ -311,55 +311,51 @@ function calculateLine(input, divisor) {
 }
 
 
-function calculateShipment(inputs,divisor) {
-  const lines = inputs.map(input => calculateLine(input,divisor));
+
+function calculateShipment(inputs, divisor) {
+  const lines = inputs.map(input => calculateLine(input, divisor));
 
   let totalCount = 0n;
   let totalHalf = 0n;
 
-  // Tổng cân thực và thể tích sau làm tròn từng kiện.
-  let totalActualHalf = 0n;
-  let totalVolumeHalf = 0n;
+  // Cộng trọng lượng gốc, chưa làm tròn từng kiện.
+  let totalActualHundredths = 0n;
+  let totalVolumeNumerator = 0n;
 
   const den = BASE_DEN * BigInt(divisor);
 
   for (const line of lines) {
     totalCount = checkSafe(totalCount + line.quantity);
 
-    // Giữ nguyên trọng lượng tính cước từng dòng.
+    // Giữ nguyên cách tính trọng lượng tính cước.
     totalHalf = checkSafe(totalHalf + line.rowHalf);
 
-    // Làm tròn cân thực từng kiện, rồi nhân số lượng.
-    const actualHalfPerPiece = roundWeight(line.actual, 100n);
-    const actualHalfRow = checkSafe(
-      actualHalfPerPiece * line.quantity
-    );
+    // Cộng cân thực gốc theo số lượng.
+    totalActualHundredths += line.actual * line.quantity;
 
-    // Làm tròn thể tích từng kiện, rồi nhân số lượng.
-    const volumeHalfPerPiece = roundWeight(line.volume, den);
-    const volumeHalfRow = checkSafe(
-      volumeHalfPerPiece * line.quantity
-    );
-
-    totalActualHalf = checkSafe(
-      totalActualHalf + actualHalfRow
-    );
-
-    totalVolumeHalf = checkSafe(
-      totalVolumeHalf + volumeHalfRow
-    );
+    // Cộng thể tích gốc theo số lượng.
+    totalVolumeNumerator += line.volume * line.quantity;
   }
 
-  // Làm tròn tổng lô hàng lần cuối.
-  function roundTotalHalf(total) {
-    return checkSafe(
-      total <= 40n ? total : ceilDiv(total, 2n) * 2n
-    );
-  }
+  // Tổng trọng lượng tính cước:
+  // Làm tròn từng kiện, sau đó làm tròn tổng.
+  const finalHalf = checkSafe(
+    totalHalf <= 40n
+      ? totalHalf
+      : ceilDiv(totalHalf, 2n) * 2n
+  );
 
-  const finalHalf = roundTotalHalf(totalHalf);
-  totalActualHalf = roundTotalHalf(totalActualHalf);
-  totalVolumeHalf = roundTotalHalf(totalVolumeHalf);
+  // Hai dòng tổng còn lại:
+  // Cộng trọng lượng gốc trước, làm tròn một lần.
+  const totalActualHalf = roundWeight(
+    totalActualHundredths,
+    100n
+  );
+
+  const totalVolumeHalf = roundWeight(
+    totalVolumeNumerator,
+    den
+  );
 
   return {
     divisor,
@@ -371,6 +367,7 @@ function calculateShipment(inputs,divisor) {
     totalVolumeHalf
   };
 }
+
 
 
 function computeBoth(inputs) { return {a:calculateShipment(inputs,5000),b:calculateShipment(inputs,6000)}; }

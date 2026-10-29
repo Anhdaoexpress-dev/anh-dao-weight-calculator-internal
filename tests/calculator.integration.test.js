@@ -50,8 +50,44 @@ const oneParcel = [{
   quantity: 1n
 }];
 
+
+function checkTotals(name, inputs, divisor, expected) {
+  const result = context.calculateShipment(inputs, divisor);
+
+  const actual = {
+    actualKg: Number(result.totalActualHalf) / 2,
+    volumeKg: Number(result.totalVolumeHalf) / 2,
+    chargeableKg: Number(result.finalHalf) / 2
+  };
+
+  assert.deepEqual(actual, expected);
+  console.log('PASS:', name);
+}
+
 check('DIM 5000 - một kiện', oneParcel, 5000, 13.5);
 check('DIM 6000 - một kiện', oneParcel, 6000, 12);
+
+checkTotals(
+  'DIM 5000 - kiểm tra ba loại tổng',
+  oneParcel,
+  5000,
+  {
+    actualKg: 12,
+    volumeKg: 13.5,
+    chargeableKg: 13.5
+  }
+);
+
+checkTotals(
+  'DIM 6000 - kiểm tra ba loại tổng',
+  oneParcel,
+  6000,
+  {
+    actualKg: 12,
+    volumeKg: 11,
+    chargeableKg: 12
+  }
+);
 
 console.log('Hoàn thành kiểm thử logic V4.');
 
@@ -88,6 +124,28 @@ const mixedParcels = [
 
 check('DIM 5000 - hai kiện khác nhau', mixedParcels, 5000, 39);
 check('DIM 6000 - hai kiện khác nhau', mixedParcels, 6000, 35);
+
+checkTotals(
+  'DIM 5000 - ba loại tổng của hai kiện',
+  mixedParcels,
+  5000,
+  {
+    actualKg: 35,
+    volumeKg: 38,
+    chargeableKg: 39
+  }
+);
+
+checkTotals(
+  'DIM 6000 - ba loại tổng của hai kiện',
+  mixedParcels,
+  6000,
+  {
+    actualKg: 35,
+    volumeKg: 32,
+    chargeableKg: 35
+  }
+);
 
 function checkInvalidDim(name, divisor) {
   assert.throws(
