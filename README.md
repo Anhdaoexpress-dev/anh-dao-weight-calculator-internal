@@ -57,3 +57,9 @@ GitHub Actions được cấu hình để tự động chạy kiểm thử khi c
 ## 7. Phạm vi sử dụng
 
 Ứng dụng dành cho nhân viên Anh Đào Express. Công cụ dành cho khách hàng được quản lý riêng.
+
+## Branch Protection Test
+
+Kiểm tra quy trình Pull Request và GitHub Actions cho Anh Đào Express Weight Calculator V4.1.0.
+
+Mục đích: Xác nhận nhánh main được bảo vệ và kiểm thử tự động hoạt động trước khi merge.
